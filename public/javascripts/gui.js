@@ -1517,6 +1517,35 @@ IDE_Morph.prototype.createShareBoxTitleBarButtons = function () {
     button.hint = 'New Member';
     button.fixLayout();
     shareBoxAddMemberButton = button;
+	
+	// make announcement button
+    button = new PushButtonMorph(
+        null,
+		null,
+        "Make Announcement",
+        null,
+        null,
+        null,
+        "iconButton"
+    );
+    button.drawNew();
+    button.hint = 'New Member';
+    button.fixLayout();
+    shareBoxAnnoucementButton = button;
+	
+	shareBoxAnnoucementButton.action = function() {
+         var result = "success";
+
+         if (result === "success") {
+             //console.log("Creating a new group and initializing a new session.");
+             //myself.showEntireShareBoxComponent(true);
+			 var message = prompt("What's your announcement?");
+             myself.showAnnouncementPopup(message);
+         } else {
+             console.log("Can't create group.");
+             myself.showGroupCreatedFailurePopup();
+         }
+     }
 
 
     // add to title bar
@@ -1524,12 +1553,20 @@ IDE_Morph.prototype.createShareBoxTitleBarButtons = function () {
     this.shareBoxTitleBarButtons.shareBoxSettingsButton = shareBoxSettingsButton;
     this.shareBoxTitleBarButtons.add(shareBoxAddMemberButton);
     this.shareBoxTitleBarButtons.shareBoxAddMemberButton = shareBoxAddMemberButton;
+	this.shareBoxTitleBarButtons.add(shareBoxAnnoucementButton);
+    this.shareBoxTitleBarButtons.shareBoxAnnoucementButton = shareBoxAnnoucementButton;
 
     // position buttons
     if (this.shareBoxTitleBarButtons) {
-        // position add new member button
-        this.shareBoxTitleBarButtons.shareBoxAddMemberButton.setLeft(this.shareBoxTitleBarButtons.left());
+        
+		
+		// position add new member button
+        this.shareBoxTitleBarButtons.shareBoxAnnoucementButton.setLeft(this.shareBoxTitleBarButtons.left());
+        this.shareBoxTitleBarButtons.shareBoxAnnoucementButton.setTop(this.shareBoxTitleBarButtons.top() + 2);
+		
+		// position announcement button
         this.shareBoxTitleBarButtons.shareBoxAddMemberButton.setTop(this.shareBoxTitleBarButtons.top() + 2);
+        this.shareBoxTitleBarButtons.shareBoxAddMemberButton.setLeft(this.shareBoxTitleBarButtons.shareBoxAnnoucementButton.right());
 
         // position settings button
         this.shareBoxTitleBarButtons.shareBoxSettingsButton.setTop(this.shareBoxTitleBarButtons.top() + 2);
@@ -2191,6 +2228,8 @@ IDE_Morph.prototype.showEntireShareBoxComponent = function(isOwner) {
         myself.createShareBoxTitleBar();
         myself.createShareBoxTitleBarButtons();
         myself.createShareBox();
+		
+		myself.shareBoxTitleBarButtons.shareBoxAnnoucementButton.destroy();
         
         myself.fixLayout();
 
@@ -2806,6 +2845,58 @@ IDE_Morph.prototype.showGroupCreatedSuccessPopup = function() {
     txt = new TextMorph("Woohoo!\nYou're now the creator of " + this.shareboxId + "'s (your) group.\n\nStart adding new members by clicking\nthe ( + ) button.");
     txt.setCenter(this.createGroupSuccessPopup.center());
     txt.setTop(successImage.bottom() + 20);
+    this.createGroupSuccessPopup.add(txt);
+    txt.drawNew();
+
+    // "got it!" button, closes the dialog.
+    okButton = new PushButtonMorph(null, null, "Alright!", null, null, null, "green");
+    okButton.setCenter(this.createGroupSuccessPopup.center());
+    okButton.setBottom(this.createGroupSuccessPopup.bottom() - 10);
+    okButton.action = function() { myself.createGroupSuccessPopup.cancel(); };
+    this.createGroupSuccessPopup.add(okButton);
+
+    // popup
+    this.createGroupSuccessPopup.drawNew();
+    this.createGroupSuccessPopup.fixLayout();
+    this.createGroupSuccessPopup.popUp(world);
+};
+
+IDE_Morph.prototype.showAnnouncementPopup = function(message) {
+    var world = this.world();
+    var myself = this;
+    var popupWidth = 400;
+    var popupHeight = 330;
+
+    if (this.createGroupSuccessPopup) {
+        this.createGroupSuccessPopup.destroy();
+    }
+    this.createGroupSuccessPopup = new DialogBoxMorph();
+    this.createGroupSuccessPopup.setExtent(new Point(popupWidth, popupHeight));
+
+    // close dialog button
+    button = new PushButtonMorph(
+        this,
+        null,
+        (String.fromCharCode("0xf00d")),
+        null,
+        null,
+        null,
+        "redCircleIconButton"
+    );
+    button.setRight(this.createGroupSuccessPopup.right() - 3);
+    button.setTop(this.createGroupSuccessPopup.top() + 2);
+    button.action = function () { myself.createGroupSuccessPopup.cancel(); };
+    button.drawNew();
+    button.fixLayout();
+    this.createGroupSuccessPopup.add(button);
+
+    // add title
+    this.createGroupSuccessPopup.labelString = "Announcement!";
+    this.createGroupSuccessPopup.createLabel();
+
+	txt = new TextMorph(this.shareboxId + " has made an announcement:\n\n" + message);
+    txt.setCenter(this.createGroupSuccessPopup.center());
+    //txt.setTop(successImage.bottom() + 20);
     this.createGroupSuccessPopup.add(txt);
     txt.drawNew();
 
@@ -4721,7 +4812,7 @@ IDE_Morph.prototype.fixLayout = function (situation) {
         if (this.shareBoxTitleBarButtons) {
             this.shareBoxTitleBarButtons.setTop(this.stage.bottom() + shareBoxTitleTopPadding);
             this.shareBoxTitleBarButtons.setRight(this.stage.right());
-            this.shareBoxTitleBarButtons.setWidth(shareBoxTitleBarButtonsWidth);
+            this.shareBoxTitleBarButtons.setWidth(shareBoxTitleBarButtonsWidth + 150);
             this.shareBoxTitleBarButtons.setHeight(shareBoxTitleBarHeight);
             //this.shareBoxTitleBarButtons.fixLayout();
         }
