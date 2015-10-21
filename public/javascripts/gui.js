@@ -1537,14 +1537,12 @@ IDE_Morph.prototype.createShareBoxTitleBarButtons = function () {
          var result = "success";
 
          if (result === "success") {
-             //console.log("Creating a new group and initializing a new session.");
-             //myself.showEntireShareBoxComponent(true);
 			 var message = prompt("What's your announcement?");
-             myself.showAnnouncementPopup(message);
-         } else {
-             console.log("Can't create group.");
-             myself.showGroupCreatedFailurePopup();
-         }
+			 if (message) {
+				 socketData = { room: myself.shareboxId, msg: message};
+				 myself.sharer.socket.emit('SEND_ANNOUNCEMENT', socketData);
+			 }
+         } 
      }
 
 
@@ -1829,6 +1827,13 @@ IDE_Morph.makeSocket = function (myself, shareboxId) {
         ide.createShareBox();
         ide.shareBox.updateList();
     })
+	
+	sharer.socket.on('ANNOUNCEMENT_SENT', function(data) {
+        console.log("[SOCKET-RECEIVE] ANNOUNCEMENT_SENT: " + JSON.stringify(data))
+		if (tempIdentifier != data.room) { // is not the owner (aka sender of msg)
+			myself.showAnnouncementPopup(data.msg);
+		}
+    });
 
     // When I receive data, I parse objectData and add it to my data list
     sharer.socket.on('UPDATE_SHAREBOX_VIEW', function (objectData) {
@@ -2904,7 +2909,10 @@ IDE_Morph.prototype.showAnnouncementPopup = function(message) {
     okButton = new PushButtonMorph(null, null, "Alright!", null, null, null, "green");
     okButton.setCenter(this.createGroupSuccessPopup.center());
     okButton.setBottom(this.createGroupSuccessPopup.bottom() - 10);
-    okButton.action = function() { myself.createGroupSuccessPopup.cancel(); };
+    okButton.action = function() { 
+		// Detect close button click here
+		myself.createGroupSuccessPopup.cancel(); 
+	};
     this.createGroupSuccessPopup.add(okButton);
 
     // popup

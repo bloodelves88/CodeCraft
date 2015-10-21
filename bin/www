@@ -297,6 +297,14 @@ io.sockets.on('connection', function(socket){
 			};
 			io.emit('SOCKET_CONTROL_UPDATE', clients);
 		})
+		
+		socket.on('SEND_ANNOUNCEMENT', function(data){
+			if(!(_.isUndefined(clients[data.room]))){
+				console.log(data.room + " has said: " + data.msg)
+				io.to(data.room).emit('ANNOUNCEMENT_SENT', data);
+			}
+			io.emit('SOCKET_CONTROL_UPDATE', clients);
+		})
 
 });
 
