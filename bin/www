@@ -35,6 +35,7 @@ server.on('listening', onListening);
 var io = require('socket.io')(server);
 
 var clients = {}
+var socketIds=[]
 
 io.sockets.on('connection', function(socket){
 
@@ -301,7 +302,29 @@ io.sockets.on('connection', function(socket){
 		socket.on('SEND_ANNOUNCEMENT', function(data){
 			if(!(_.isUndefined(clients[data.room]))){
 				console.log(data.room + " has said: " + data.msg)
+				for (var i = clients[data.room].members.length - 1; i >= 0; i--) {
+					if(clients[data.room].members[i].socketId != clients[data.room].owner.socketId) {
+							socketIds.push(clients[data.room].members[i].socketId);
+						}
+					}
+				console.log(socketIds)
 				io.to(data.room).emit('ANNOUNCEMENT_SENT', data);
+			}
+			io.emit('SOCKET_CONTROL_UPDATE', clients);
+		})
+		
+		socket.on('CLOSE_ANNOUNCEMENT', function(data){
+			if(!(_.isUndefined(clients[data.room]))){
+				console.log(data.id + " has closed the message")
+				if(socketIds.indexOf(socket.id)+1)
+				{
+					socketIds.splice(socketIds.indexOf(socket.id),1);
+				}
+				if(socketIds.length==0)
+				{
+					console.log("empty")
+					io.to(data.room).emit('MESSAGE_READ', data);
+				}
 			}
 			io.emit('SOCKET_CONTROL_UPDATE', clients);
 		})
