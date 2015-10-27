@@ -314,7 +314,6 @@ io.sockets.on('connection', function(socket){
 		})
 		
 		socket.on('CLOSE_ANNOUNCEMENT', function(data){
-			console.log("Close announcement socket emitted");
 			if(!(_.isUndefined(clients[data.room]))){
 				console.log(data.id + " has closed the message")
 				if(socketIds.indexOf(socket.id)+1)

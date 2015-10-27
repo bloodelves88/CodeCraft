@@ -1831,21 +1831,14 @@ IDE_Morph.makeSocket = function (myself, shareboxId) {
 	sharer.socket.on('ANNOUNCEMENT_SENT', function(data) {
         console.log("[SOCKET-RECEIVE] ANNOUNCEMENT_SENT: " + JSON.stringify(data))
 		if (tempIdentifier != data.room) { // is not the owner (aka sender of msg)
-			//myself.showAnnouncementPopup(data.msg);
-			var answer = confirm("Annoucement: " + data.msg);
-			if (answer == true || answer == false) {
-				var socketData = {id: tempIdentifier, owner: myself.shareboxId, room:shareboxId }
-				myself.sharer.socket.emit('CLOSE_ANNOUNCEMENT', socketData);
-			} 
+			myself.showAnnouncementPopup(data.msg);
 		}
     });
 	
 	sharer.socket.on('MESSAGE_READ', function(data) {
         console.log("[SOCKET-RECEIVE] MESSAGE_READ: " + JSON.stringify(data))
-		console.log("MESSAGE_READ: " + tempIdentifier + " " + data.room);
 		if (tempIdentifier == data.room) { // is the owner (aka sender of msg)
-			//myself.showAnnouncementReadPopup();
-			alert("All members have read the announcement!");
+			myself.showAnnouncementReadPopup();
 		}
     })	
 

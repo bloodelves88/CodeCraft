@@ -1837,6 +1837,7 @@ IDE_Morph.makeSocket = function (myself, shareboxId) {
 	
 	sharer.socket.on('MESSAGE_READ', function(data) {
         console.log("[SOCKET-RECEIVE] MESSAGE_READ: " + JSON.stringify(data))
+		console.log("MESSAGE_READ: " + tempIdentifier + " " + data.room);
 		if (tempIdentifier == data.room) { // is the owner (aka sender of msg)
 			myself.showAnnouncementReadPopup();
 		}
@@ -2878,56 +2879,12 @@ IDE_Morph.prototype.showAnnouncementPopup = function(message) {
     var myself = this;
     var popupWidth = 400;
     var popupHeight = 330;
-
-    if (this.createGroupSuccessPopup) {
-        this.createGroupSuccessPopup.destroy();
-    }
-    this.createGroupSuccessPopup = new DialogBoxMorph();
-    this.createGroupSuccessPopup.setExtent(new Point(popupWidth, popupHeight));
-
-    // close dialog button
-    button = new PushButtonMorph(
-        this,
-        null,
-        (String.fromCharCode("0xf00d")),
-        null,
-        null,
-        null,
-        "redCircleIconButton"
-    );
-    button.setRight(this.createGroupSuccessPopup.right() - 3);
-    button.setTop(this.createGroupSuccessPopup.top() + 2);
-    button.action = function () { myself.createGroupSuccessPopup.cancel(); };
-    button.drawNew();
-    button.fixLayout();
-    this.createGroupSuccessPopup.add(button);
-
-    // add title
-    this.createGroupSuccessPopup.labelString = "Announcement!";
-    this.createGroupSuccessPopup.createLabel();
-
-	txt = new TextMorph(this.shareboxId + " has made an announcement:\n\n" + message);
-    txt.setCenter(this.createGroupSuccessPopup.center());
-    //txt.setTop(successImage.bottom() + 20);
-    this.createGroupSuccessPopup.add(txt);
-    txt.drawNew();
-
-    // "got it!" button, closes the dialog.
-    okButton = new PushButtonMorph(null, null, "Alright!", null, null, null, "green");
-    okButton.setCenter(this.createGroupSuccessPopup.center());
-    okButton.setBottom(this.createGroupSuccessPopup.bottom() - 10);
-    okButton.action = function() { 
-		// Detect close button click here
-		myself.createGroupSuccessPopup.cancel(); 
-		var socketData = {id: tempIdentifier, owner: myself.shareboxId,room:shareboxId }
-		 myself.sharer.socket.emit('CLOSE_ANNOUNCEMENT', socketData);
-	};
-    this.createGroupSuccessPopup.add(okButton);
-
-    // popup
-    this.createGroupSuccessPopup.drawNew();
-    this.createGroupSuccessPopup.fixLayout();
-    this.createGroupSuccessPopup.popUp(world);
+	
+	var answer = confirm("Annoucement: " + message);
+	if (answer == true || answer == false) {
+		var socketData = {id: tempIdentifier, owner: myself.shareboxId, room:shareboxId }
+		myself.sharer.socket.emit('CLOSE_ANNOUNCEMENT', socketData);
+	} 
 };
 
 IDE_Morph.prototype.showAnnouncementReadPopup = function() {
@@ -2936,50 +2893,7 @@ IDE_Morph.prototype.showAnnouncementReadPopup = function() {
     var popupWidth = 400;
     var popupHeight = 330;
 
-    if (this.createGroupSuccessPopup) {
-        this.createGroupSuccessPopup.destroy();
-    }
-    this.createGroupSuccessPopup = new DialogBoxMorph();
-    this.createGroupSuccessPopup.setExtent(new Point(popupWidth, popupHeight));
-
-    // close dialog button
-    button = new PushButtonMorph(
-        this,
-        null,
-        (String.fromCharCode("0xf00d")),
-        null,
-        null,
-        null,
-        "redCircleIconButton"
-    );
-    button.setRight(this.createGroupSuccessPopup.right() - 3);
-    button.setTop(this.createGroupSuccessPopup.top() + 2);
-    button.action = function () { myself.createGroupSuccessPopup.cancel(); };
-    button.drawNew();
-    button.fixLayout();
-    this.createGroupSuccessPopup.add(button);
-
-    // add title
-    this.createGroupSuccessPopup.labelString = "Notice!";
-    this.createGroupSuccessPopup.createLabel();
-
-	txt = new TextMorph("All members have read the announcement!");
-    txt.setCenter(this.createGroupSuccessPopup.center());
-    //txt.setTop(successImage.bottom() + 20);
-    this.createGroupSuccessPopup.add(txt);
-    txt.drawNew();
-
-    // "got it!" button, closes the dialog.
-    okButton = new PushButtonMorph(null, null, "Alright!", null, null, null, "green");
-    okButton.setCenter(this.createGroupSuccessPopup.center());
-    okButton.setBottom(this.createGroupSuccessPopup.bottom() - 10);
-    okButton.action = function() { myself.createGroupSuccessPopup.cancel();};
-    this.createGroupSuccessPopup.add(okButton);
-
-    // popup
-    this.createGroupSuccessPopup.drawNew();
-    this.createGroupSuccessPopup.fixLayout();
-    this.createGroupSuccessPopup.popUp(world);
+	alert("All members have read the announcement!");
 };
 
 IDE_Morph.prototype.showGroupCreatedFailurePopup = function() {
