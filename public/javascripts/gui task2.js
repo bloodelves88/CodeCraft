@@ -2920,7 +2920,7 @@ IDE_Morph.prototype.showAnnouncementPopup = function(message) {
 		// Detect close button click here
 		myself.createGroupSuccessPopup.cancel(); 
 		var socketData = {id: tempIdentifier, owner: myself.shareboxId,room:shareboxId }
-		 myself.sharer.socket.emit('CLOSE_ANNOUNCEMENT', socketData);
+		myself.sharer.socket.emit('CLOSE_ANNOUNCEMENT', socketData);
 	};
     this.createGroupSuccessPopup.add(okButton);
 
